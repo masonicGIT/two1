@@ -24,6 +24,7 @@ from two1.lib.wallet.two1_wallet import Two1Wallet
 from two1.lib.wallet.two1_wallet import Wallet
 from two1.lib.wallet.daemonizer import get_daemonizer
 
+from two1.lib.wallet.multisig_wallet import multisig_wallet
 
 WALLET_VERSION = "0.1.0"
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
@@ -477,6 +478,77 @@ def restore(ctx):
         click.echo("Wallet not restored.")
         ctx.exit(code=6)
 
+@click.command(name="create_user")
+@click.argument('username',
+                metavar='USERNAME')
+@click.argument('passphrase',
+                metavar='PASSPHRASE')                
+@click.pass_context
+@handle_exceptions
+@log_usage
+def create_user(ctx, username, passphrase):
+    """ Creates a new user wallet
+
+    \b
+    Creates a new user multisig wallet using the BitGo API
+    """
+    click.echo("Creating User")
+    click.echo(username)
+    click.echo(passphrase)
+    multisig_wallet.create_wallet(username, passphrase)
+
+
+@click.command(name="send")
+@click.argument('sender',
+                metavar="SENDER")
+@click.argument('address',
+                metavar="ADDRESS")
+@click.argument('amount',
+                metavar="AMOUNT")
+@click.argument('passphrase',
+                metavar="PASSPHRASE")
+@click.pass_context
+@handle_exceptions
+@log_usage
+def send(ctx, sender, address, amount, passphrase):
+    """ Send Bitcoin from BitGo wallets
+
+    \b
+    Send Bitcoin from user multisig wallet using the BitGo API
+    """
+    multisig_wallet.send_bitcoin(sender, address, amount, passphrase)
+
+@click.command(name="generate_address")
+@click.argument('username',
+                metavar="USERNAME")
+@click.pass_context
+@handle_exceptions
+@log_usage
+def generate_address(ctx, username):
+    """ Genereate a new user address
+
+    \b
+    """
+    multisig_wallet.generate_address(username)
+
+@click.command(name="test")
+@click.option('--account',
+              metavar="STRING",
+              default=None,
+              help="Account")
+@click.pass_context
+@handle_exceptions
+@log_usage
+def test(ctx, account):
+    """ Prints the current payout address
+
+    \b
+    A payout address is an address you can give to someone to
+    send you bitcoin.
+    """
+    w = ctx.obj['wallet']
+    click.echo(w.get_payout_address(account))
+
 
 @click.command(name="payoutaddress")
 @click.option('--account',
@@ -892,6 +964,10 @@ main.add_command(history)
 main.add_command(sweep)
 main.add_command(sign_bitcoin_message)
 main.add_command(verify_bitcoin_message)
+# BitGo wallet commands
+main.add_command(create_user)
+main.add_command(send)
+main.add_command(generate_address)
 
 if __name__ == "__main__":
     main()
