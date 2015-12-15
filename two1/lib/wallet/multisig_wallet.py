@@ -24,7 +24,7 @@ class multisig_wallet(object):
         walletId = r.json()['wallet']['id']
         user = r.json()['wallet']['label']
         keychain = r.json()['wallet']['private']        
-        newWallet = json.dumps({user: { "walletId": walletId, "keychain": keychain }})
+        newWallet = {user: { "walletId": walletId, "keychain": keychain }}
 
         ## Save new wallet to bitgo_wallet.json
         with open(DEFAULT_WALLET_PATH, 'r') as read_file:
