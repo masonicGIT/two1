@@ -492,9 +492,6 @@ def create_user(ctx, username, passphrase):
     \b
     Creates a new user multisig wallet using the BitGo API
     """
-    click.echo("Creating User")
-    click.echo(username)
-    click.echo(passphrase)
     multisig_wallet.create_wallet(username, passphrase)
 
 

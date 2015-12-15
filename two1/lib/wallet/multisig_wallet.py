@@ -33,17 +33,14 @@ class multisig_wallet(object):
         try: 
             with open(DEFAULT_WALLET_PATH, 'r') as read_file:
                 data = json.load(read_file)
-                print('printing wallet data')
-                print(data)
+                data.append(newWallet)
         except:
             data = [newWallet]
-        data[1] = newWallet
-        print(data)
-        return
+
         with open(DEFAULT_WALLET_PATH, 'w') as write_file:
             json.dump(data, write_file)
         print('New user created with: ')
-        print('Username: ' + user)
+        print('Username: ' + str(user))
         print('Wallet ID: ' + walletId + '\n')
         print('Your wallet config file can be found at: ' + DEFAULT_WALLET_PATH)
     @staticmethod        
