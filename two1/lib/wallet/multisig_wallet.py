@@ -17,9 +17,12 @@ class multisig_wallet(object):
     def create_wallet(username, passphrase):
         ## Create a new wallet using BitGo Express 
         payload = json.dumps({ "passphrase": passphrase, "label": username })
-        r = requests.post('http://localhost:3080/api/v1/wallets/simplecreate',
-                          headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'},
-                          data = payload)
+        try:
+          r = requests.post('http://localhost:3080/api/v1/wallets/simplecreate',
+                            headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'},
+                            data = payload)
+        except:
+          return print('Please ensure that you have BitGo Express running on your local machine')
         ## Setup wallet parameters
         walletId = r.json()['wallet']['id']
         user = r.json()['wallet']['label']
@@ -27,14 +30,22 @@ class multisig_wallet(object):
         newWallet = {user: { "walletId": walletId, "keychain": keychain }}
 
         ## Save new wallet to bitgo_wallet.json
-        with open(DEFAULT_WALLET_PATH, 'r') as read_file:
-            data = json.load(read_file)
-            user = newWallet
-            data.append(user)
+        try: 
+            with open(DEFAULT_WALLET_PATH, 'r') as read_file:
+                data = json.load(read_file)
+                print('printing wallet data')
+                print(data)
+        except:
+            data = [newWallet]
+        data[1] = newWallet
         print(data)
+        return
         with open(DEFAULT_WALLET_PATH, 'w') as write_file:
             json.dump(data, write_file)
-            
+        print('New user created with: ')
+        print('Username: ' + user)
+        print('Wallet ID: ' + walletId + '\n')
+        print('Your wallet config file can be found at: ' + DEFAULT_WALLET_PATH)
     @staticmethod        
     def send_bitcoin(sender, address, amount, passphrase):
         print('Sending Bitcoin')
