@@ -7,9 +7,7 @@ DEFAULT_WALLET_PATH = os.path.join(os.path.expanduser('~'),
                                    "wallet",
                                    "multisig_wallet.json")
 
-# ACCESS_TOKEN = os.environ['ACCESS_TOKEN']
-
-ACCESS_TOKEN = 'f3b510d6c8902b0af05b453b32be980f85579ea1b015dbfa81deaeb64ec74cec'
+ACCESS_TOKEN = os.environ['ACCESS_TOKEN']
 
 class multisig_wallet(object):
 
@@ -76,8 +74,26 @@ class multisig_wallet(object):
           except:
             print('Loading wallet..')        
         r = requests.post('http://localhost:3080/api/v1/wallet/' + walletId + '/address/0',
-                        headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'})                          
+                        headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'})
+        print('Generated address for ' + username + ':')       
         print(r.json()['address'])
+
+    @staticmethod
+    def get_balance(username):
+        # use username to look up wallet Id
+        with open(DEFAULT_WALLET_PATH, 'r') as wallet:
+          data = json.loads(wallet.read())
+        for user in data:
+          try:
+            if user[username]:
+              print('Wallet found')
+              walletId = user[username]['walletId']
+          except:
+            print('Loading wallet..')        
+        r = requests.get('http://localhost:3080/api/v1/wallet/' + walletId,
+                        headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'})
+        print('Balance for ' + username + ' is: ')
+        print(r.json()['balance'])
 
     @staticmethod        
     def ping():

@@ -478,7 +478,7 @@ def restore(ctx):
         click.echo("Wallet not restored.")
         ctx.exit(code=6)
 
-@click.command(name="create_user")
+@click.command(name="createuser")
 @click.argument('username',
                 metavar='USERNAME')
 @click.argument('passphrase',
@@ -508,14 +508,14 @@ def create_user(ctx, username, passphrase):
 @handle_exceptions
 @log_usage
 def send(ctx, sender, address, amount, passphrase):
-    """ Send Bitcoin from BitGo wallets
+    """ Send Bitcoin from BitGo user wallets
 
     \b
     Send Bitcoin from user multisig wallet using the BitGo API
     """
     multisig_wallet.send_bitcoin(sender, address, amount, passphrase)
 
-@click.command(name="generate_address")
+@click.command(name="generateaddress")
 @click.argument('username',
                 metavar="USERNAME")
 @click.pass_context
@@ -527,6 +527,19 @@ def generate_address(ctx, username):
     \b
     """
     multisig_wallet.generate_address(username)
+
+@click.command(name="getuserbalance")
+@click.argument('username',
+                metavar="USERNAME")
+@click.pass_context
+@handle_exceptions
+@log_usage
+def get_user_balance(ctx, username):
+    """ Get a user's balance
+
+    \b
+    """
+    multisig_wallet.get_balance(username)
 
 @click.command(name="test")
 @click.option('--account',
@@ -965,6 +978,7 @@ main.add_command(verify_bitcoin_message)
 main.add_command(create_user)
 main.add_command(send)
 main.add_command(generate_address)
+main.add_command(get_user_balance)
 
 if __name__ == "__main__":
     main()
