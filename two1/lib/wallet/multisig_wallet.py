@@ -65,9 +65,14 @@ class multisig_wallet(object):
         print('Amount is: ' + amount)
         payload = json.dumps({"address": address, "amount": int(amount), "walletPassphrase": passphrase})
         #use the sender username to look up the sender id
-        r = requests.post('http://localhost:3080/api/v1/wallet/' + walletId + '/sendcoins',
-                        headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'},
-                        data = payload)
+        try:
+            r = requests.post('http://localhost:3080/api/v1/wallet/' + walletId + '/sendcoins',
+                              headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'},
+                              data = payload)
+        except:
+            return print('Please ensure that you have BitGo Express running on your local machine')
+
+
         print(r.json())
 
     @staticmethod
@@ -89,8 +94,12 @@ class multisig_wallet(object):
         except NameError:
             return print('User does not exist')            
 
-        r = requests.post('http://localhost:3080/api/v1/wallet/' + walletId + '/address/0',
-                        headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'})
+        try:
+            r = requests.post('http://localhost:3080/api/v1/wallet/' + walletId + '/address/0',
+                              headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'})
+        except:
+            return print('Please ensure that you have BitGo Express running on your local machine')
+
         print('Generated address for ' + username + ':')       
         print(r.json()['address'])
 
@@ -113,8 +122,12 @@ class multisig_wallet(object):
         except NameError:
             return print('User does not exist')
 
-        r = requests.get('http://localhost:3080/api/v1/wallet/' + walletId,
+        try:
+            r = requests.get('http://localhost:3080/api/v1/wallet/' + walletId,
                         headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'})
+        except:
+            return print('Please ensure that you have BitGo Express running on your local machine')
+
         print('Balance for ' + username + ' is: ')
         print(r.json()['balance'])
 
@@ -137,10 +150,15 @@ class multisig_wallet(object):
         except NameError:
             return print('User does not exist')
 
-        payload = json.dumps({"url": url, "type": "transaction", "numConfirmations": confirms})        
-        r = requests.post('http://localhost:3080/api/v1/wallet/' + walletId + '/webhooks',
-                          headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'},
-                          data = payload)
+        payload = json.dumps({"url": url, "type": "transaction", "numConfirmations": confirms})
+
+        try:
+            r = requests.post('http://localhost:3080/api/v1/wallet/' + walletId + '/webhooks',
+                              headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'},
+                              data = payload)
+        except:
+            return print('Please ensure that you have BitGo Express running on your local machine')
+            
         print(r.json())
 
     @staticmethod
@@ -161,9 +179,13 @@ class multisig_wallet(object):
             walletId
         except NameError:
             return print('User does not exist')
-        
-        r = requests.get('http://localhost:3080/api/v1/wallet/' + walletId + '/webhooks',
-                          headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'})
+
+        try:
+            r = requests.get('http://localhost:3080/api/v1/wallet/' + walletId + '/webhooks',
+                             headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'})
+        except:
+            return print('Please ensure that you have BitGo Express running on your local machine')
+            
         print(r.json())
 
     @staticmethod        
