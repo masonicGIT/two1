@@ -487,13 +487,13 @@ def restore(ctx):
 @handle_exceptions
 @log_usage
 def create_user(ctx, username, passphrase):
-    """ Creates a new user wallet
+    """ MS - Creates a new user wallet
 
     \b
     Creates a new user multisig wallet using the BitGo API
     """
-    multisig_wallet.create_wallet(username, passphrase)
 
+    multisig_wallet.create_wallet(username, passphrase)
 
 @click.command(name="send")
 @click.argument('sender',
@@ -508,11 +508,12 @@ def create_user(ctx, username, passphrase):
 @handle_exceptions
 @log_usage
 def send(ctx, sender, address, amount, passphrase):
-    """ Send Bitcoin from BitGo user wallets
+    """ MS - Send Bitcoin from BitGo user wallets
 
     \b
     Send Bitcoin from user multisig wallet using the BitGo API
     """
+
     multisig_wallet.send_bitcoin(sender, address, amount, passphrase)
 
 @click.command(name="generateaddress")
@@ -522,10 +523,11 @@ def send(ctx, sender, address, amount, passphrase):
 @handle_exceptions
 @log_usage
 def generate_address(ctx, username):
-    """ Genereate a new user address
+    """ MS - Genereate a new user address
 
     \b
     """
+
     multisig_wallet.generate_address(username)
 
 @click.command(name="getuserbalance")
@@ -534,13 +536,46 @@ def generate_address(ctx, username):
 @click.pass_context
 @handle_exceptions
 @log_usage
-def get_user_balance(ctx, username):
-    """ Get a user's balance
+def get_balance(ctx, username):
+    """ MS - Get a user's balance
 
     \b
     """
+
     multisig_wallet.get_balance(username)
 
+@click.command(name="setwebhook")
+@click.argument('username',
+                metavar="USERNAME")
+@click.argument('url',
+                metavar="URL")
+@click.argument('confirms',
+                metavar="CONFIRMS")
+@click.pass_context
+@handle_exceptions
+@log_usage
+def set_webhook(ctx, username, url, confirms):
+    """ MS - Set a webhook to be called when a tx is sent or recieved
+
+    \b
+    """
+
+    multisig_wallet.set_webhook(username, url, confirms)
+
+@click.command(name="listwebhooks")
+@click.argument('username',
+                metavar="USERNAME")
+@click.pass_context
+@handle_exceptions
+@log_usage
+def list_webhooks(ctx, username):
+    """ MS - List all transactional webhooks set for a user
+
+    \b
+    """
+
+    multisig_wallet.list_webhooks(username)
+    
 @click.command(name="test")
 @click.option('--account',
               metavar="STRING",
@@ -978,7 +1013,9 @@ main.add_command(verify_bitcoin_message)
 main.add_command(create_user)
 main.add_command(send)
 main.add_command(generate_address)
-main.add_command(get_user_balance)
+main.add_command(get_balance)
+main.add_command(set_webhook)
+main.add_command(list_webhooks)
 
 if __name__ == "__main__":
     main()

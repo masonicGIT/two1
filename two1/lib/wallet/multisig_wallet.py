@@ -16,11 +16,12 @@ class multisig_wallet(object):
         ## Create a new wallet using BitGo Express 
         payload = json.dumps({ "passphrase": passphrase, "label": username })
         try:
-          r = requests.post('http://localhost:3080/api/v1/wallets/simplecreate',
-                            headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'},
-                            data = payload)
+            r = requests.post('http://localhost:3080/api/v1/wallets/simplecreate',
+                              headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'},
+                              data = payload)
         except:
-          return print('Please ensure that you have BitGo Express running on your local machine')
+            return print('Please ensure that you have BitGo Express running on your local machine')
+
         ## Setup wallet parameters
         walletId = r.json()['wallet']['id']
         user = r.json()['wallet']['label']
@@ -34,13 +35,14 @@ class multisig_wallet(object):
                 data.append(newWallet)
         except:
             data = [newWallet]
-
+            
         with open(DEFAULT_WALLET_PATH, 'w') as write_file:
             json.dump(data, write_file)
-        print('New user created with: ')
-        print('Username: ' + str(user))
-        print('Wallet ID: ' + walletId + '\n')
-        print('Your wallet config file can be found at: ' + DEFAULT_WALLET_PATH)
+            print('New user created with: ')
+            print('Username: ' + str(user))
+            print('Wallet ID: ' + walletId + '\n')
+            print('Your wallet config file can be found at: ' + DEFAULT_WALLET_PATH)
+                
     @staticmethod        
     def send_bitcoin(sender, address, amount, passphrase):
         print('Sending Bitcoin')
@@ -53,6 +55,13 @@ class multisig_wallet(object):
               walletId = user[sender]['walletId']
           except:
             print('Loading wallet..')
+
+        ## Ensure that the user exists
+        try:
+            walletId
+        except NameError:
+            return print('User does not exist')
+            
         print('Amount is: ' + amount)
         payload = json.dumps({"address": address, "amount": int(amount), "walletPassphrase": passphrase})
         #use the sender username to look up the sender id
@@ -73,6 +82,13 @@ class multisig_wallet(object):
               walletId = user[username]['walletId']
           except:
             print('Loading wallet..')        
+
+        ## Ensure that the user exists
+        try:
+            walletId
+        except NameError:
+            return print('User does not exist')            
+
         r = requests.post('http://localhost:3080/api/v1/wallet/' + walletId + '/address/0',
                         headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'})
         print('Generated address for ' + username + ':')       
@@ -90,10 +106,65 @@ class multisig_wallet(object):
               walletId = user[username]['walletId']
           except:
             print('Loading wallet..')        
+
+        ## Ensure that the user exists
+        try:
+            walletId
+        except NameError:
+            return print('User does not exist')
+
         r = requests.get('http://localhost:3080/api/v1/wallet/' + walletId,
                         headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'})
         print('Balance for ' + username + ' is: ')
         print(r.json()['balance'])
+
+    @staticmethod
+    def set_webhook(username, url, confirms):
+        # use username to look up wallet Id
+        with open(DEFAULT_WALLET_PATH, 'r') as wallet:
+          data = json.loads(wallet.read())
+        for user in data:
+          try:
+            if user[username]:
+              print('Wallet found')
+              walletId = user[username]['walletId']
+          except:
+            print('Loading user..')        
+
+        ## Ensure that the user exists
+        try:
+            walletId
+        except NameError:
+            return print('User does not exist')
+
+        payload = json.dumps({"url": url, "type": "transaction", "numConfirmations": confirms})        
+        r = requests.post('http://localhost:3080/api/v1/wallet/' + walletId + '/webhooks',
+                          headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'},
+                          data = payload)
+        print(r.json())
+
+    @staticmethod
+    def list_webhooks(username):
+        # use username to look up wallet Id
+        with open(DEFAULT_WALLET_PATH, 'r') as wallet:
+          data = json.loads(wallet.read())
+        for user in data:
+            try:
+                if user[username]:
+                    print('Wallet found')
+                    walletId = user[username]['walletId']
+            except:
+                print('Loading user..')        
+
+        ## Ensure that the user exists
+        try:
+            walletId
+        except NameError:
+            return print('User does not exist')
+        
+        r = requests.get('http://localhost:3080/api/v1/wallet/' + walletId + '/webhooks',
+                          headers = {'Authorization': 'Bearer ' + ACCESS_TOKEN,'content-type': 'application/json'})
+        print(r.json())
 
     @staticmethod        
     def ping():
